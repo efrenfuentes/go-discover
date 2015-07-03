@@ -1,0 +1,11 @@
+language: go
+
+go:
+ - 1.4
+
+install:
+  - go get github.com/tatsushid/go-fastping
+  - go get github.com/soniah/gosnmp
+  - go get github.com/onsi/ginko
+  - go get github.com/onsi/gomega
+  - go get github.com/modocache/gory
