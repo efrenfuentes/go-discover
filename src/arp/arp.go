@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
-  "strconv"
+	"device"
 )
 
 const (
@@ -16,31 +16,19 @@ const (
 	f_Device
 )
 
-type ArpInfo struct {
-	IPAddr string
-	HWAddr string
-	Up bool
-}
-
-func (info *ArpInfo) String() string {
-	return "IP: " + info.IPAddr +
-		     " MAC: " + info.HWAddr +
-				 " Up:" + strconv.FormatBool(info.Up)
-}
-
 type ArpTable struct {
-	Device []ArpInfo
+	Devices []device.Device
 }
 
-func (table *ArpTable) Add(info ArpInfo) {
-	table.Device = append(table.Device, info)
+func (table *ArpTable) Add(info device.Device) {
+	table.Devices = append(table.Devices, info)
 }
 
 func (table *ArpTable) Read() {
 	f, err := os.Open("/proc/net/arp")
 
 	if err != nil {
-		table.Device = nil
+		table.Devices = nil
 	}
 
 	defer f.Close()
@@ -51,10 +39,10 @@ func (table *ArpTable) Read() {
 	for s.Scan() {
 		line := s.Text()
 		fields := strings.Fields(line)
-		info := ArpInfo{
-      IPAddr: fields[f_IPAddr],
-      HWAddr: fields[f_HWAddr],
-    }
+		info := device.Device{
+			IPAddr: fields[f_IPAddr],
+			HWAddr: fields[f_HWAddr],
+		}
 		table.Add(info)
 	}
 }

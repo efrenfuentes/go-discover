@@ -23,6 +23,7 @@ _testmain.go
 *.test
 *.prof
 
+bin/
 src/github.com
 src/golang.org
 src/discover/discover
