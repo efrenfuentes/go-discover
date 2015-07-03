@@ -22,9 +22,3 @@ _testmain.go
 *.exe
 *.test
 *.prof
-
-bin/
-src/github.com
-src/golang.org
-src/discover/discover
-src/discover/discover-net

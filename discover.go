@@ -1,8 +1,8 @@
 package main
 
 import (
-	"arp"
 	"fmt"
+	"github.com/efrenfuentes/go-discover/arp"
 	"github.com/tatsushid/go-fastping"
 	"net"
 	"os"

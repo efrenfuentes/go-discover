@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
-	"device"
+	"github.com/efrenfuentes/go-discover/device"
 )
 
 const (
