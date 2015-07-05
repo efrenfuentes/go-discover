@@ -2,9 +2,9 @@ package arp
 
 import (
 	"bufio"
+	"github.com/efrenfuentes/go-discover/device"
 	"os"
 	"strings"
-	"github.com/efrenfuentes/go-discover/device"
 )
 
 const (
@@ -40,9 +40,9 @@ func (table *ArpTable) Read() {
 		line := s.Text()
 		fields := strings.Fields(line)
 		info := device.Device{
-			IPAddr: fields[f_IPAddr],
 			HWAddr: fields[f_HWAddr],
 		}
+		info.SetIP(fields[f_IPAddr])
 		table.Add(info)
 	}
 }
