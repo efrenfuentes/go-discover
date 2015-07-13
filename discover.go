@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/efrenfuentes/go-discover/arp"
+	"github.com/efrenfuentes/go-discover/device"
 	"github.com/efrenfuentes/go-discover/utils"
 )
 
@@ -11,19 +12,41 @@ func scanning(table *arp.ArpTable) {
 	table.Read()
 }
 
-func print_table(table arp.ArpTable) {
-	fmt.Println("Checking device response for ping..")
-	for _, device := range table.Devices {
-		fmt.Println(device.String())
+func print_devices(devices []device.Device) {
+	fmt.Println("Discover result")
+	for _, device := range devices {
+		if device.Discover {
+			fmt.Println(device.String())
+			fmt.Print("Names: ")
+			fmt.Println(device.Names)
+		}
 	}
 }
 
 func main() {
-	table := arp.ArpTable{}
+	fmt.Println("Get local ips from interfaces...")
+	addr_interfaces := utils.LocalAddresses()
 
-	scanning(&table)
-	print_table(table)
+	devices_interfaces := []device.Device{}
 
-	utils.IPS_Network("192.168.1.0/24")
-	utils.LocalAddresses()
+	for _, a := range addr_interfaces {
+		fmt.Printf("Get ips for %v network...\n", a)
+		ips_on_network, _ := utils.IPS_Network(a.String())
+		for _, ip := range ips_on_network {
+			info := device.Device{}
+			info.SetIP(ip)
+			fmt.Printf("scanning %s...\n", ip)
+			if !device.DeviceInSlice(info, devices_interfaces) {
+				devices_interfaces = append(devices_interfaces, info)
+			}
+		}
+	}
+
+	arp_table := arp.ArpTable{}
+	scanning(&arp_table)
+
+	fmt.Println("Search duplicates...")
+	devices := device.DeviceJoinSlice(arp_table.Devices, devices_interfaces)
+
+	print_devices(devices)
 }

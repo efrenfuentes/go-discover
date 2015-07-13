@@ -6,11 +6,12 @@ import (
 	"net"
 )
 
-func LocalAddresses() {
+func LocalAddresses() []net.Addr {
+	ip_table := []net.Addr{}
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		log.Print(fmt.Errorf("localAddresses: %v\n", err.Error()))
-		return
+		return nil
 	}
 	for _, i := range ifaces {
 		addrs, err := i.Addrs()
@@ -19,27 +20,32 @@ func LocalAddresses() {
 			continue
 		}
 		for _, a := range addrs {
-			if i.Name != "lo" { /* Descartar loopback */
-				log.Printf("%v %v\n", i.Name, a)
+			if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil {
+					ip_table = append(ip_table, a)
+				}
 			}
 		}
 	}
+	return ip_table
 }
 
-func IPS_Network(network string) {
+func IPS_Network(network string) ([]string, error) {
+	ip_table := []string{}
 	ip, ipnet, err := net.ParseCIDR(network)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc_ip(ip) {
-		fmt.Printf("ip: %s\n", ip)
+		ip_table = append(ip_table, ip.String())
 	}
+	return ip_table, nil
 }
 
 func inc_ip(ip net.IP) {
 	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
+		(ip)[j]++
+		if (ip)[j] > 0 {
 			break
 		}
 	}

@@ -8,15 +8,15 @@ import (
 )
 
 type Device struct {
-	IPAddr net.IPAddr
-	HWAddr string
+	IPAddr   net.IPAddr
+	Names    []string
+	HWAddr   string
+	Discover bool
 }
 
 func (device *Device) String() string {
-	isUp, _ := device.IsUp()
-	return "IP: " + device.IPAddr.String() +
-		" MAC: " + device.HWAddr +
-		" Up:" + strconv.FormatBool(isUp)
+	return "IP: " + device.IPAddr.String() + " MAC: " + device.HWAddr +
+		" Up:" + strconv.FormatBool(device.Discover)
 }
 
 func (device *Device) SetIP(ip string) error {
@@ -26,6 +26,10 @@ func (device *Device) SetIP(ip string) error {
 	}
 
 	device.IPAddr = *ipAddr
+
+	device.Discover, _ = device.IsUp()
+
+	device.Names, _ = net.LookupAddr(ip)
 
 	return nil
 }
@@ -46,4 +50,23 @@ func (device *Device) IsUp() (bool, error) {
 	}
 
 	return isUp, nil
+}
+
+func DeviceInSlice(device Device, list []Device) bool {
+	for _, d := range list {
+		if d.IPAddr.IP.String() == device.IPAddr.IP.String() {
+			return true
+		}
+	}
+	return false
+}
+
+func DeviceJoinSlice(list_base []Device, list_new []Device) []Device {
+	list_result := list_base
+	for _, d := range list_new {
+		if !DeviceInSlice(d, list_result) {
+			list_result = append(list_result, d)
+		}
+	}
+	return list_result
 }
